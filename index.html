@@ -1,0 +1,595 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Al-Ikhwan Company Executive Decision Support System (DSS) - enterprise management console." />
+  <title>Al-Ikhwan Company | Executive DSS</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet" />
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <!-- =====================================================================
+       AUTHENTICATION SCREEN
+       ===================================================================== -->
+  <section class="auth-screen" id="authScreen" aria-label="Sign in">
+    <div class="auth-orb auth-orb--sky" aria-hidden="true"></div>
+    <div class="auth-orb auth-orb--emerald" aria-hidden="true"></div>
+    <div class="auth-orb auth-orb--teal" aria-hidden="true"></div>
+
+    <div class="auth-card">
+      <div class="auth-card__brand">
+        <span class="auth-logo" aria-hidden="true">
+          <svg viewBox="0 0 96 96" width="40" height="40" fill="none" role="img" aria-label="Al-Ikhwan monogram">
+            <defs>
+              <linearGradient id="aiLogoGrad" x1="16" y1="86" x2="80" y2="10" gradientUnits="userSpaceOnUse">
+                <stop offset="0" stop-color="#059669"/>
+                <stop offset=".55" stop-color="#14b8a6"/>
+                <stop offset="1" stop-color="#0284c7"/>
+              </linearGradient>
+              <linearGradient id="aiLogoSoft" x1="48" y1="12" x2="48" y2="86" gradientUnits="userSpaceOnUse">
+                <stop offset="0" stop-color="#0ea5e9" stop-opacity=".16"/>
+                <stop offset="1" stop-color="#10b981" stop-opacity=".05"/>
+              </linearGradient>
+            </defs>
+            <path d="M48 12 L88 86 H68 L48 54 L28 86 H8 Z" fill="url(#aiLogoSoft)" stroke="url(#aiLogoGrad)" stroke-width="5" stroke-linejoin="round"/>
+            <path d="M30 58 H66" stroke="url(#aiLogoGrad)" stroke-width="5" stroke-linecap="round"/>
+            <path d="M36 72 L45 60 L54 62 L66 48" stroke="#10b981" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </span>
+        <h1 class="auth-card__title">AL-IKHWAN</h1>
+        <p class="auth-card__tag">Executive Decision Support System</p>
+        <span class="auth-status"><span class="auth-status__dot"></span> BI &amp; Decision Engine &bull; Active</span>
+      </div>
+
+      <form class="auth-form" id="loginForm" novalidate autocomplete="on">
+        <div class="auth-field">
+          <label for="loginUser">Username</label>
+          <div class="auth-input">
+            <i class="fa-solid fa-user"></i>
+            <input id="loginUser" type="text" name="username" autocomplete="username" placeholder="Enter your username" />
+          </div>
+        </div>
+        <div class="auth-field">
+          <label for="loginPass">Password</label>
+          <div class="auth-input">
+            <i class="fa-solid fa-lock"></i>
+            <input id="loginPass" type="password" name="password" autocomplete="current-password" placeholder="Enter your password" />
+            <button type="button" class="auth-eye" id="togglePass" aria-label="Show password"><i class="fa-regular fa-eye"></i></button>
+          </div>
+          <a href="#" class="auth-forgot" id="forgotLink">Forgot password?</a>
+        </div>
+        <button type="submit" class="auth-cta" id="loginSubmit">
+          <span>Enter Decision Platform</span>
+          <i class="fa-solid fa-arrow-right"></i>
+        </button>
+      </form>
+    </div>
+  </section>
+
+  <!-- ============ EXECUTIVE SECURITY RECOVERY MODAL ============ -->
+  <div class="modal auth-recovery" id="authRecovery" hidden>
+    <div class="modal__backdrop" data-close="authRecovery"></div>
+    <div class="modal__dialog auth-recovery__dialog" role="dialog" aria-modal="true" aria-labelledby="recoveryTitle">
+      <span class="auth-recovery__icon"><i class="fa-solid fa-shield-halved"></i></span>
+      <h3 id="recoveryTitle">Executive Security Recovery</h3>
+      <p class="auth-recovery__desc">For executive security, password overrides require verification by the IT Security Department.</p>
+      <div class="auth-recovery__body">
+        <button type="button" class="auth-recovery__btn auth-recovery__btn--primary" id="recoveryReset">
+          <i class="fa-solid fa-paper-plane"></i> Request Reset from IT Admin
+        </button>
+        <button type="button" class="auth-recovery__btn auth-recovery__btn--alt" id="recoveryHints">
+          <i class="fa-solid fa-lightbulb"></i> Show Recovery Hints
+        </button>
+      </div>
+      <div class="auth-recovery__hint" id="recoveryHint" hidden>
+        Demo access &mdash; username: <code>admin</code> &nbsp;&middot;&nbsp; password: <code>admin123</code>
+      </div>
+      <button type="button" class="auth-recovery__close" id="recoveryClose"><i class="fa-solid fa-arrow-left"></i> Back to Sign In</button>
+    </div>
+  </div>
+
+  <!-- =====================================================================
+       APPLICATION SHELL
+       ===================================================================== -->
+  <div class="app-shell">
+
+    <!-- ============================ SIDEBAR ============================ -->
+    <aside class="sidebar" id="sidebar" aria-label="Primary navigation">
+      <div class="sidebar__brand">
+        <span class="brand-mark" aria-hidden="true"><i class="fa-solid fa-chart-pie"></i></span>
+        <div class="brand-text">
+          <strong>Al-Ikhwan</strong>
+          <small>Executive DSS</small>
+        </div>
+      </div>
+
+      <nav class="sidebar__nav">
+        <button class="nav-item is-active" data-view="overview" type="button">
+          <i class="fa-solid fa-gauge-high"></i>
+          <span><b>Overview Dashboard</b><small>لوحة القيادة</small></span>
+        </button>
+        <button class="nav-item" data-view="sales" type="button">
+          <i class="fa-solid fa-cash-register"></i>
+          <span><b>Sales</b><small>المبيعات</small></span>
+        </button>
+        <button class="nav-item" data-view="inventory" type="button">
+          <i class="fa-solid fa-boxes-stacked"></i>
+          <span><b>Inventory &amp; Products</b><small>المنتجات والمخزون</small></span>
+        </button>
+        <button class="nav-item" data-view="employees" type="button">
+          <i class="fa-solid fa-users"></i>
+          <span><b>Employees &amp; HR</b><small>الموظفين والموارد البشرية</small></span>
+        </button>
+        <button class="nav-item" data-view="suppliers" type="button">
+          <i class="fa-solid fa-truck-field"></i>
+          <span><b>Suppliers &amp; Purchases</b><small>المشتريات والموردين</small></span>
+        </button>
+        <button class="nav-item" data-view="finance" type="button">
+          <i class="fa-solid fa-file-invoice-dollar"></i>
+          <span><b>Financial Reports</b><small>التقارير المالية</small></span>
+        </button>
+      </nav>
+
+      <div class="sidebar__foot">
+        <div class="status-dot" id="dbStatus"><span></span> Connecting&hellip;</div>
+        <small>DSS v2.0 &middot; SQLite</small>
+      </div>
+    </aside>
+
+    <div class="sidebar-overlay" id="sidebarOverlay" hidden></div>
+
+    <!-- ============================== MAIN ============================= -->
+    <div class="main">
+
+      <!-- Top bar -->
+      <header class="topbar">
+        <button class="icon-btn menu-btn" id="menuToggle" type="button" aria-label="Toggle menu">
+          <i class="fa-solid fa-bars"></i>
+        </button>
+        <div class="topbar__title">
+          <h1 id="pageTitle">Overview Dashboard</h1>
+          <p id="pageSubtitle">لوحة القيادة</p>
+        </div>
+        <div class="topbar__search" role="search">
+          <i class="fa-solid fa-magnifying-glass"></i>
+          <input id="globalSearch" type="search" placeholder="Search the dashboard&hellip;" aria-label="Search the dashboard" />
+        </div>
+        <div class="topbar__meta">
+          <div class="live-pill" aria-live="polite" title="Current date and time">
+            <i class="fa-regular fa-calendar"></i><span id="liveDate">--</span>
+            <i class="fa-regular fa-clock"></i><span id="liveClock" class="live-clock-txt">--</span>
+          </div>
+          <div class="user-badge" title="Signed in as Executive Admin">
+            <span class="user-badge__avatar">EA</span>
+            <span class="user-badge__meta"><b>Executive Admin</b><small>Operations Suite</small></span>
+          </div>
+          <button id="btnPrint" class="btn btn--ghost btn--sm" type="button" title="Print comprehensive report">
+            <i class="fa-solid fa-file-export"></i><span>Print Report</span>
+          </button>
+          <button id="btnSignOut" class="btn btn--ghost btn--danger-text btn--sm" type="button" title="Sign out">
+            <i class="fa-solid fa-arrow-right-from-bracket"></i><span>Sign Out</span>
+          </button>
+        </div>
+      </header>
+
+      <div class="content">
+
+        <!-- ======================= VIEW: OVERVIEW ======================= -->
+        <section id="view-overview" class="view" aria-labelledby="ovHeading">
+          <div class="section__head">
+            <h2 id="ovHeading" class="section__title"><i class="fa-solid fa-chart-simple"></i> Key Performance Indicators
+              <span class="badge" id="kpiScenarioBadge" hidden><i class="fa-solid fa-flask-vial"></i> Scenario Active</span>
+            </h2>
+            <p class="section__hint">Live figures pulled from the SQLite database &mdash; auto-calculated each load.</p>
+          </div>
+
+          <div class="kpi-grid" id="kpiGrid"></div>
+
+          <div class="section__head section__head--sp">
+            <h2 class="section__title"><i class="fa-solid fa-chart-line"></i> Advanced Analytics</h2>
+            <p class="section__hint">Revenue vs. management target with regression-based forecast, and category mix.</p>
+          </div>
+
+          <div class="chart-grid">
+            <article class="panel panel--wide">
+              <header class="panel__head">
+                <h3 class="panel__title">Sales vs Target Forecast</h3>
+                <span class="badge"><i class="fa-solid fa-microchip"></i> Linear Regression</span>
+              </header>
+              <div class="chart-frame"><canvas id="chartSalesForecast" role="img" aria-label="Sales vs target forecast"></canvas></div>
+            </article>
+            <article class="panel">
+              <header class="panel__head"><h3 class="panel__title">Revenue Breakdown by Category</h3></header>
+              <div class="chart-frame chart-frame--doughnut"><canvas id="chartRevenueBreakdown" role="img" aria-label="Revenue by category"></canvas></div>
+              <ul class="legend" id="revenueLegend"></ul>
+            </article>
+          </div>
+
+          <div class="section__head section__head--sp">
+            <h2 class="section__title"><i class="fa-solid fa-flask-vial"></i> Core DSS Engine &mdash; What-If Simulation</h2>
+            <p class="section__hint">Adjust the levers. KPIs, projections and the recommendation update in real time.</p>
+          </div>
+
+          <div class="sim-grid">
+            <article class="panel">
+              <header class="panel__head">
+                <h3 class="panel__title">Decision Levers</h3>
+                <button type="button" id="btnReset" class="btn btn--ghost btn--sm"><i class="fa-solid fa-rotate-left"></i> Reset</button>
+              </header>
+              <div class="control">
+                <div class="control__head"><label for="discountRange">Promotional Discount Rate</label><output id="discountValue" class="control__value">0%</output></div>
+                <input type="range" id="discountRange" min="0" max="40" step="1" value="0" />
+                <p class="control__help">Depth of price promotion applied across all categories.</p>
+              </div>
+              <div class="control">
+                <div class="control__head"><label for="marketingRange">Marketing Budget Increase</label><output id="marketingValue" class="control__value">0%</output></div>
+                <input type="range" id="marketingRange" min="0" max="100" step="5" value="0" />
+                <p class="control__help">Additional spend on campaigns vs. current baseline budget.</p>
+              </div>
+              <div class="scenario-meta">
+                <div class="scenario-meta__row"><span>Baseline Monthly Revenue</span><strong id="baselineRevenue">--</strong></div>
+                <div class="scenario-meta__row"><span>Baseline Sales Volume</span><strong id="baselineVolume">--</strong></div>
+                <div class="scenario-meta__row"><span>Marketing Baseline Budget</span><strong id="baselineMarketing">--</strong></div>
+              </div>
+            </article>
+
+            <article class="panel panel--outputs">
+              <header class="panel__head"><h3 class="panel__title">Projected Outcomes</h3></header>
+              <div class="outcome-grid">
+                <div class="outcome"><span class="outcome__label">Projected Sales Volume</span><span class="outcome__value" id="outVolume">--</span><span class="outcome__delta" id="outVolumeDelta">--</span></div>
+                <div class="outcome"><span class="outcome__label">Projected Net Profit</span><span class="outcome__value" id="outProfit">--</span><span class="outcome__delta" id="outProfitDelta">--</span></div>
+                <div class="outcome"><span class="outcome__label">Projected Revenue</span><span class="outcome__value" id="outRevenue">--</span><span class="outcome__delta" id="outRevenueDelta">--</span></div>
+                <div class="outcome"><span class="outcome__label">Estimated Risk Margin</span><span class="outcome__value" id="outRisk">--</span><span class="outcome__delta" id="outRiskNote">--</span></div>
+              </div>
+              <div class="riskbar"><div class="riskbar__fill" id="riskBarFill"></div></div>
+              <div class="recommendation" id="recommendation" role="status" aria-live="polite"></div>
+            </article>
+          </div>
+        </section>
+
+        <!-- ========================= VIEW: SALES ======================== -->
+        <section id="view-sales" class="view" aria-labelledby="salesHeading" hidden>
+          <div class="section__head">
+            <h2 id="salesHeading" class="section__title"><i class="fa-solid fa-cash-register"></i> Sales Transactions</h2>
+            <p class="section__hint">Invoices, revenue trend, top-selling items and payment mix.</p>
+          </div>
+
+          <div class="stat-grid" id="salesStats"></div>
+
+          <div class="chart-grid">
+            <article class="panel panel--wide">
+              <header class="panel__head"><h3 class="panel__title">Sales Trend (Monthly)</h3></header>
+              <div class="chart-frame"><canvas id="chartSalesTrend" role="img" aria-label="Monthly sales trend"></canvas></div>
+            </article>
+            <article class="panel">
+              <header class="panel__head"><h3 class="panel__title">Payment Method Mix</h3></header>
+              <div class="chart-frame chart-frame--doughnut"><canvas id="chartPaymentMix" role="img" aria-label="Payment method mix"></canvas></div>
+              <ul class="legend" id="paymentLegend"></ul>
+            </article>
+          </div>
+
+          <div class="split-grid">
+            <article class="panel">
+              <header class="panel__head"><h3 class="panel__title">Top Selling Items</h3></header>
+              <div class="table-scroll">
+                <table class="data-table">
+                  <thead><tr><th>Product</th><th>Category</th><th class="num">Units</th><th class="num">Revenue</th></tr></thead>
+                  <tbody id="topItemsBody"></tbody>
+                </table>
+              </div>
+            </article>
+            <article class="panel">
+              <header class="panel__head">
+                <h3 class="panel__title">Recent Invoices</h3>
+                <button type="button" class="btn btn--primary btn--sm" id="btnAddSale"><i class="fa-solid fa-plus"></i> Add Sale Transaction</button>
+              </header>
+              <div class="table-toolbar">
+                <input type="search" id="salesSearch" class="input" placeholder="Search invoice or customer&hellip;" aria-label="Search invoices" />
+              </div>
+              <div class="table-scroll table-scroll--tall">
+                <table class="data-table">
+                  <thead><tr><th>Invoice</th><th>Customer</th><th>Date</th><th class="num">Total</th><th>Payment</th></tr></thead>
+                  <tbody id="invoicesBody"></tbody>
+                </table>
+              </div>
+            </article>
+          </div>
+        </section>
+
+        <!-- ======================= VIEW: INVENTORY ====================== -->
+        <section id="view-inventory" class="view" aria-labelledby="invHeading" hidden>
+          <div class="section__head">
+            <h2 id="invHeading" class="section__title"><i class="fa-solid fa-boxes-stacked"></i> Inventory &amp; Products</h2>
+            <p class="section__hint">Full catalogue with automated stock status and one-click reorder requests.</p>
+          </div>
+
+          <div class="stat-grid" id="inventoryStats"></div>
+
+          <article class="panel">
+            <div class="table-toolbar">
+              <div class="filters" role="group" aria-label="Filter catalogue">
+                <button type="button" class="chip is-active" data-filter="all">All <span class="chip__count" id="countAll">0</span></button>
+                <button type="button" class="chip chip--danger" data-filter="reorder">Reorder <span class="chip__count" id="countReorder">0</span></button>
+                <button type="button" class="chip chip--ok" data-filter="optimal">Optimal <span class="chip__count" id="countOptimal">0</span></button>
+                <button type="button" class="chip chip--warn" data-filter="slow">Slow-Moving <span class="chip__count" id="countSlow">0</span></button>
+              </div>
+              <button type="button" class="btn btn--primary btn--sm" id="btnAddProduct"><i class="fa-solid fa-plus"></i> Add Product</button>
+            </div>
+            <div class="table-scroll">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>Product</th><th>Category</th><th class="num">Cost</th><th class="num">Price</th>
+                    <th class="num">Stock</th><th class="num">Reorder Pt.</th><th class="num">Coverage</th>
+                    <th>Status</th><th class="num">Action</th>
+                  </tr>
+                </thead>
+                <tbody id="catalogBody"></tbody>
+              </table>
+            </div>
+          </article>
+        </section>
+
+        <!-- ======================= VIEW: EMPLOYEES ====================== -->
+        <section id="view-employees" class="view" aria-labelledby="hrHeading" hidden>
+          <div class="section__head">
+            <h2 id="hrHeading" class="section__title"><i class="fa-solid fa-users"></i> Employees &amp; HR</h2>
+            <p class="section__hint">Staff directory, payroll distribution and sales performance.</p>
+          </div>
+
+          <div class="stat-grid" id="hrStats"></div>
+
+          <div class="chart-grid">
+            <article class="panel panel--wide">
+              <header class="panel__head"><h3 class="panel__title">Payroll by Department</h3></header>
+              <div class="chart-frame"><canvas id="chartPayroll" role="img" aria-label="Payroll by department"></canvas></div>
+            </article>
+            <article class="panel">
+              <header class="panel__head"><h3 class="panel__title">Top Performers</h3></header>
+              <ul class="perf-list" id="topPerformers"></ul>
+            </article>
+          </div>
+
+          <article class="panel">
+            <header class="panel__head">
+              <h3 class="panel__title">Staff Directory</h3>
+              <button type="button" class="btn btn--primary btn--sm" id="btnAddEmployee"><i class="fa-solid fa-plus"></i> Add Employee</button>
+            </header>
+            <div class="table-scroll">
+              <table class="data-table">
+                <thead>
+                  <tr><th>Name</th><th>Role</th><th>Department</th><th class="num">Salary</th>
+                      <th class="num">Performance</th><th class="num">Month Sales</th></tr>
+                </thead>
+                <tbody id="employeesBody"></tbody>
+              </table>
+            </div>
+          </article>
+        </section>
+
+        <!-- ======================= VIEW: SUPPLIERS ====================== -->
+        <section id="view-suppliers" class="view" aria-labelledby="supHeading" hidden>
+          <div class="section__head">
+            <h2 id="supHeading" class="section__title"><i class="fa-solid fa-truck-field"></i> Suppliers &amp; Purchases</h2>
+            <p class="section__hint">Supplier directory, procurement orders and purchase-cost tracking.</p>
+          </div>
+
+          <div class="stat-grid" id="supplierStats"></div>
+
+          <div class="chart-grid">
+            <article class="panel panel--wide">
+              <header class="panel__head"><h3 class="panel__title">Procurement Spend by Supplier</h3></header>
+              <div class="chart-frame"><canvas id="chartSupplierSpend" role="img" aria-label="Spend by supplier"></canvas></div>
+            </article>
+            <article class="panel">
+              <header class="panel__head"><h3 class="panel__title">Supplier Rating</h3></header>
+              <ul class="perf-list" id="supplierRatings"></ul>
+            </article>
+          </div>
+
+          <article class="panel">
+            <header class="panel__head"><h3 class="panel__title">Suppliers</h3></header>
+            <div class="table-scroll">
+              <table class="data-table">
+                <thead>
+                  <tr><th>Supplier</th><th>Contact</th><th>Category</th><th class="num">Rating</th>
+                      <th class="num">Balance</th><th class="num">Total Spend</th><th class="num">Orders</th></tr>
+                </thead>
+                <tbody id="suppliersBody"></tbody>
+              </table>
+            </div>
+          </article>
+
+          <article class="panel panel--sp">
+            <header class="panel__head"><h3 class="panel__title">Procurement Orders</h3></header>
+            <div class="table-scroll">
+              <table class="data-table">
+                <thead>
+                  <tr><th>PO Number</th><th>Supplier</th><th>Product</th><th class="num">Qty</th>
+                      <th class="num">Unit Cost</th><th class="num">Total</th><th>Date</th><th>Status</th></tr>
+                </thead>
+                <tbody id="ordersBody"></tbody>
+              </table>
+            </div>
+          </article>
+        </section>
+
+        <!-- ======================== VIEW: FINANCE ======================= -->
+        <section id="view-finance" class="view" aria-labelledby="finHeading" hidden>
+          <div class="section__head">
+            <h2 id="finHeading" class="section__title"><i class="fa-solid fa-file-invoice-dollar"></i> Financial Reports</h2>
+            <p class="section__hint">Operational expenses vs. gross and net profit. Use Export / Print for the full report.</p>
+          </div>
+
+          <div class="stat-grid" id="financeStats"></div>
+
+          <div class="chart-grid">
+            <article class="panel panel--wide">
+              <header class="panel__head"><h3 class="panel__title">Gross Profit vs. Operating Expenses</h3></header>
+              <div class="chart-frame"><canvas id="chartProfitTrend" role="img" aria-label="Gross profit vs expenses"></canvas></div>
+            </article>
+            <article class="panel">
+              <header class="panel__head"><h3 class="panel__title">Expense Breakdown</h3></header>
+              <div class="chart-frame chart-frame--doughnut"><canvas id="chartExpenseBreakdown" role="img" aria-label="Expense breakdown"></canvas></div>
+              <ul class="legend" id="expenseLegend"></ul>
+            </article>
+          </div>
+
+          <div class="split-grid">
+            <article class="panel">
+              <header class="panel__head"><h3 class="panel__title">Profit &amp; Loss Summary &mdash; Current Month</h3></header>
+              <ul class="pl-list" id="plSummary"></ul>
+            </article>
+            <article class="panel">
+              <header class="panel__head"><h3 class="panel__title">Expense Detail</h3></header>
+              <div class="table-scroll table-scroll--tall">
+                <table class="data-table">
+                  <thead><tr><th>Category</th><th>Month</th><th class="num">Amount</th></tr></thead>
+                  <tbody id="expenseDetailBody"></tbody>
+                </table>
+              </div>
+            </article>
+          </div>
+        </section>
+
+      </div><!-- /content -->
+    </div><!-- /main -->
+  </div><!-- /app-shell -->
+
+  <!-- ======================= REORDER MODAL ======================= -->
+  <div class="modal" id="reorderModal" hidden>
+    <div class="modal__backdrop" data-close></div>
+    <div class="modal__dialog" role="dialog" aria-modal="true" aria-labelledby="reorderTitle">
+      <header class="modal__head">
+        <h3 id="reorderTitle"><i class="fa-solid fa-cart-plus"></i> Immediate Reorder Request</h3>
+        <button class="icon-btn" type="button" data-close aria-label="Close"><i class="fa-solid fa-xmark"></i></button>
+      </header>
+      <div class="modal__body">
+        <p class="modal__product" id="reorderProduct">--</p>
+        <div class="field">
+          <label for="reorderQty">Order Quantity</label>
+          <input type="number" id="reorderQty" class="input" min="1" value="100" />
+        </div>
+        <p class="modal__hint" id="reorderHint"></p>
+      </div>
+      <footer class="modal__foot">
+        <button class="btn btn--ghost" type="button" data-close>Cancel</button>
+        <button class="btn btn--primary" type="button" id="reorderSubmit"><i class="fa-solid fa-paper-plane"></i> Submit Request</button>
+      </footer>
+    </div>
+  </div>
+
+  <!-- ==================== ADD PRODUCT MODAL ==================== -->
+  <div class="modal" id="productModal" hidden>
+    <div class="modal__backdrop" data-close="productModal"></div>
+    <div class="modal__dialog" role="dialog" aria-modal="true" aria-labelledby="productModalTitle">
+      <header class="modal__head">
+        <h3 id="productModalTitle"><i class="fa-solid fa-cube"></i> Add Product</h3>
+        <button class="icon-btn" type="button" data-close="productModal" aria-label="Close"><i class="fa-solid fa-xmark"></i></button>
+      </header>
+      <div class="modal__body">
+        <div class="form-grid">
+          <div class="field"><label for="prodName">Product Name *</label><input id="prodName" class="input" placeholder="e.g. Smart LED TV 55&quot;" /></div>
+          <div class="field"><label for="prodSku">SKU *</label><input id="prodSku" class="input" placeholder="e.g. ELC-TV60" /></div>
+          <div class="field"><label for="prodCategory">Category</label>
+            <select id="prodCategory" class="input">
+              <option>Electronics</option><option>Commercial Goods</option>
+              <option>Home Appliances</option><option>Spare Parts</option>
+            </select>
+          </div>
+          <div class="field"><label for="prodNameAr">Arabic Name</label><input id="prodNameAr" class="input" placeholder="اسم المنتج" /></div>
+          <div class="field"><label for="prodCost">Unit Cost</label><input id="prodCost" class="input" type="number" min="0" step="0.01" value="0" /></div>
+          <div class="field"><label for="prodPrice">Selling Price</label><input id="prodPrice" class="input" type="number" min="0" step="0.01" value="0" /></div>
+          <div class="field"><label for="prodStock">Current Stock</label><input id="prodStock" class="input" type="number" min="0" value="0" /></div>
+          <div class="field"><label for="prodReorder">Reorder Point</label><input id="prodReorder" class="input" type="number" min="0" value="0" /></div>
+        </div>
+        <div class="field"><label for="prodVelocity">Monthly Sales Velocity (units)</label><input id="prodVelocity" class="input" type="number" min="0" value="0" /></div>
+      </div>
+      <footer class="modal__foot">
+        <button class="btn btn--ghost" type="button" data-close="productModal">Cancel</button>
+        <button class="btn btn--primary" type="button" id="btnAddProductSubmit"><i class="fa-solid fa-plus"></i> Add Product</button>
+      </footer>
+    </div>
+  </div>
+
+  <!-- ====================== ADD SALE MODAL ====================== -->
+  <div class="modal" id="saleModal" hidden>
+    <div class="modal__backdrop" data-close="saleModal"></div>
+    <div class="modal__dialog modal__dialog--lg" role="dialog" aria-modal="true" aria-labelledby="saleModalTitle">
+      <header class="modal__head">
+        <h3 id="saleModalTitle"><i class="fa-solid fa-cash-register"></i> Add Sale Transaction</h3>
+        <button class="icon-btn" type="button" data-close="saleModal" aria-label="Close"><i class="fa-solid fa-xmark"></i></button>
+      </header>
+      <div class="modal__body">
+        <div class="form-grid form-grid--3">
+          <div class="field"><label for="saleCustomer">Customer</label><input id="saleCustomer" class="input" placeholder="Cash Customer" /></div>
+          <div class="field"><label for="saleDate">Date</label><input id="saleDate" class="input" type="date" /></div>
+          <div class="field"><label for="saleMethod">Payment Method</label>
+            <select id="saleMethod" class="input"><option>Cash</option><option>Card</option><option>Bank Transfer</option><option>Credit</option></select>
+          </div>
+        </div>
+        <div class="field"><label for="saleEmployee">Sales Employee</label>
+          <select id="saleEmployee" class="input"><option value="">— Not assigned —</option></select>
+        </div>
+
+        <div class="field">
+          <div class="sale-lines-head"><label>Line Items</label><span id="saleLineHelp" class="cat-pill"></span></div>
+          <div class="sale-lines" id="saleLines"></div>
+          <button type="button" class="btn btn--ghost btn--sm" id="btnAddSaleLine"><i class="fa-solid fa-plus"></i> Add Item</button>
+        </div>
+
+        <div class="sale-total"><span>Transaction Total</span><strong id="saleTotal">$0</strong></div>
+      </div>
+      <footer class="modal__foot">
+        <button class="btn btn--ghost" type="button" data-close="saleModal">Cancel</button>
+        <button class="btn btn--primary" type="button" id="btnAddSaleSubmit"><i class="fa-solid fa-paper-plane"></i> Record Sale</button>
+      </footer>
+    </div>
+  </div>
+
+  <!-- ===================== ADD EMPLOYEE MODAL ==================== -->
+  <div class="modal" id="employeeModal" hidden>
+    <div class="modal__backdrop" data-close="employeeModal"></div>
+    <div class="modal__dialog" role="dialog" aria-modal="true" aria-labelledby="employeeModalTitle">
+      <header class="modal__head">
+        <h3 id="employeeModalTitle"><i class="fa-solid fa-user-plus"></i> Add Employee</h3>
+        <button class="icon-btn" type="button" data-close="employeeModal" aria-label="Close"><i class="fa-solid fa-xmark"></i></button>
+      </header>
+      <div class="modal__body">
+        <div class="form-grid">
+          <div class="field"><label for="empName">Full Name *</label><input id="empName" class="input" placeholder="e.g. Adel Haddad" /></div>
+          <div class="field"><label for="empNameAr">Arabic Name</label><input id="empNameAr" class="input" placeholder="الاسم بالعربية" /></div>
+          <div class="field"><label for="empRole">Role *</label><input id="empRole" class="input" placeholder="e.g. Sales Executive" /></div>
+          <div class="field"><label for="empDepartment">Department</label>
+            <select id="empDepartment" class="input">
+              <option>Sales</option><option>Finance</option><option>Warehouse</option>
+              <option>Procurement</option><option>IT</option><option>Human Resources</option>
+              <option>Operations</option><option>Executive</option>
+            </select>
+          </div>
+          <div class="field"><label for="empSalary">Monthly Salary</label><input id="empSalary" class="input" type="number" min="0" step="0.01" value="5000" /></div>
+          <div class="field"><label for="empPerformance">Performance Score (0-100)</label><input id="empPerformance" class="input" type="number" min="0" max="100" value="80" /></div>
+          <div class="field"><label for="empHireDate">Hire Date</label><input id="empHireDate" class="input" type="date" /></div>
+        </div>
+      </div>
+      <footer class="modal__foot">
+        <button class="btn btn--ghost" type="button" data-close="employeeModal">Cancel</button>
+        <button class="btn btn--primary" type="button" id="btnAddEmployeeSubmit"><i class="fa-solid fa-user-plus"></i> Add Employee</button>
+      </footer>
+    </div>
+  </div>
+
+  <!-- ======================= TOASTS ======================= -->
+  <div class="toast-wrap" id="toastWrap" aria-live="polite"></div>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
